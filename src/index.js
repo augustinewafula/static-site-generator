@@ -86,6 +86,14 @@ const processSubDirectories = (subDirectoryNames) => {
 			),
 			'utf8'
 		)
+		const subDirectorySinglePostTemplate = fs.readFileSync(
+			path.join(
+				'src',
+				'template',
+				`${inflection.singularize(subDirectoryName)}.html`
+			),
+			'utf8'
+		)
 		const subDirectoryFilePartialTemplates = []
 		subDirectoryFilenames.forEach((subDirectoryFilename) => {
 			const subDirectoryFile = readFile(subDirectoryFilename)
@@ -97,7 +105,7 @@ const processSubDirectories = (subDirectoryNames) => {
 			)
 			subDirectoryFilePartialTemplates.push(subDirectoryFilePartialTemplate)
 			const singlePostTemplate = renderPageTemplate(
-				subDirectoryTemplate,
+				subDirectorySinglePostTemplate,
 				{
 					html: subDirectoryFilePartialTemplate,
 					data: {
@@ -116,6 +124,24 @@ const processSubDirectories = (subDirectoryNames) => {
 			saveFile(outputFileName, singlePostTemplate)
 			console.log(`📝 ${outputFileName}`)
 		})  
+		const allSubDirectoryFilePartialTemplates = subDirectoryFilePartialTemplates.join('')
+		const allPostsTemplate = renderPageTemplate(
+			subDirectoryTemplate,
+			{
+				html: allSubDirectoryFilePartialTemplates,
+				data: {
+					title: '',
+					date: '',
+					author: '',
+				},
+			},
+			subDirectoryName,
+			[]
+		)
+		const outputFileName = path.join('dist', subDirectoryName + '.html')
+		saveFile(outputFileName, allPostsTemplate)
+		
+
 	})
 }	
 
