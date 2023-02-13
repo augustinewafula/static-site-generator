@@ -67,83 +67,88 @@ const processFile = (filename, filenames, template, outPath) => {
 	console.log(`📝 ${outputFileName}`)
 }
 
-const processSubDirectories = (subDirectoryNames) => {
-	subDirectoryNames.forEach((subDirectoryName) => {
-		const subDirectoryPath = path.join('src', 'pages', subDirectoryName)
-		const subDirectoryFilenames = glob.sync(
-			path.join(subDirectoryPath, '*.md')
-		)
-		const subDirectoryTemplate = fs.readFileSync(
-			path.join('src', 'template', `${subDirectoryName}.html`),
-			'utf8'
-		)
-		const subDirectoryPartialTemplate = fs.readFileSync(
-			path.join(
-				'src',
-				'template',
-				'partial',
-				`${inflection.singularize(subDirectoryName)}.html`
-			),
-			'utf8'
-		)
-		const subDirectorySinglePostTemplate = fs.readFileSync(
-			path.join(
-				'src',
-				'template',
-				`${inflection.singularize(subDirectoryName)}.html`
-			),
-			'utf8'
-		)
-		const subDirectoryFilePartialTemplates = []
-		subDirectoryFilenames.forEach((subDirectoryFilename) => {
-			const subDirectoryFile = readFile(subDirectoryFilename)
-			const subDirectoryFilePartialTemplate = renderPageTemplate(
-				subDirectoryPartialTemplate,
-				subDirectoryFile,
-				'',
-				[]
-			)
-			subDirectoryFilePartialTemplates.push(subDirectoryFilePartialTemplate)
-			const singlePostTemplate = renderPageTemplate(
-				subDirectorySinglePostTemplate,
-				{
-					html: subDirectoryFilePartialTemplate,
-					data: {
-						title: '',
-						date: '',
-						author: '',
-					},
-				},
-				'Details',
-				[]
-			)
-			const outputFileName = getOutputFilename(
-				subDirectoryFilename,
-				path.join('dist', subDirectoryName)
-			)
-			saveFile(outputFileName, singlePostTemplate)
-			console.log(`📝 ${outputFileName}`)
-		})  
-		const allSubDirectoryFilePartialTemplates = subDirectoryFilePartialTemplates.join('')
-		const allPostsTemplate = renderPageTemplate(
-			subDirectoryTemplate,
-			{
-				html: allSubDirectoryFilePartialTemplates,
-				data: {
-					title: '',
-					date: '',
-					author: '',
-				},
-			},
-			subDirectoryName,
-			[]
-		)
-		const outputFileName = path.join('dist', subDirectoryName + '.html')
-		saveFile(outputFileName, allPostsTemplate)
-		
+const processMarkdownFile = (fileName, subDirectoryName) => {
+  const file = readFile(fileName);
+  const partialTemplate = fs.readFileSync(
+    path.join('src', 'template', 'partial', `${inflection.singularize(subDirectoryName)}.html`),
+    'utf8'
+  );
+  const partialRendered = renderPageTemplate(partialTemplate, file, '', []);
+  return partialRendered;
+}
 
-	})
-}	
+const renderSinglePost = (subDirectoryName, partialRendered) => {
+  const singlePostTemplate = fs.readFileSync(
+    path.join('src', 'template', `${inflection.singularize(subDirectoryName)}.html`),
+    'utf8'
+  );
+  const singlePostRendered = renderPageTemplate(
+    singlePostTemplate,
+    {
+      html: partialRendered,
+      data: {
+        title: '',
+        date: '',
+        author: '',
+      },
+    },
+    'Details',
+    []
+  );
+  return singlePostRendered;
+}
+
+const saveSinglePost = (subDirectoryName, singlePostRendered, fileName) => {
+  const outputFileName = getOutputFilename(fileName, path.join('dist', subDirectoryName));
+  saveFile(outputFileName, singlePostRendered);
+  console.log(`📝 ${outputFileName}`);
+}
+
+const renderAllPosts = (subDirectoryName, partialRenderedTemplates) => {
+  const allPostsTemplate = fs.readFileSync(
+    path.join('src', 'template', `${subDirectoryName}.html`),
+    'utf8'
+  );
+  const allPostsRendered = renderPageTemplate(
+    allPostsTemplate,
+    {
+      html: partialRenderedTemplates.join(''),
+      data: {
+        title: '',
+        date: '',
+        author: '',
+      },
+    },
+    subDirectoryName,
+    []
+  );
+  return allPostsRendered;
+};
+
+const saveAllPosts = (subDirectoryName, allPostsRendered) => {
+  const outputFileName = path.join('dist', `${subDirectoryName}.html`);
+  saveFile(outputFileName, allPostsRendered);
+};
+
+const processSubDirectories = (subDirectoryNames) => {
+  subDirectoryNames.forEach((subDirectoryName) => {
+    const subDirectoryPath = path.join('src', 'pages', subDirectoryName);
+    const subDirectoryFilenames = glob.sync(path.join(subDirectoryPath, '*.md'));
+    const partialRenderedTemplates = [];
+
+    subDirectoryFilenames.forEach((fileName) => {
+      const partialRendered = processMarkdownFile(fileName, subDirectoryName);
+      partialRenderedTemplates.push(partialRendered);
+
+      const singlePostRendered = renderSinglePost(subDirectoryName, partialRendered);
+      saveSinglePost(subDirectoryName, singlePostRendered, fileName);
+    });
+
+    const allPostsRendered = renderAllPosts(subDirectoryName, partialRenderedTemplates);
+	  saveAllPosts(subDirectoryName, allPostsRendered);
+  });
+}
+	
 
 const copyTemplateAssets = (srcPath, outPath) => {
 	const assetsPath = path.join(srcPath, 'template/assets')
