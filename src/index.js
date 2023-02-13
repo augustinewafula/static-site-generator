@@ -104,49 +104,66 @@ const saveSinglePost = (subDirectoryName, singlePostRendered, fileName) => {
   console.log(`📝 ${outputFileName}`);
 }
 
+const hyperlinkH1Tags = (content, link) => {
+	return content.replace(
+		/<h1(.*?)>(.*?)<\/h1>/g,
+		`<h1$1><a href="${link}">$2</a></h1>`
+	)
+}
+
 const renderAllPosts = (subDirectoryName, partialRenderedTemplates) => {
-  const allPostsTemplate = fs.readFileSync(
-    path.join('src', 'template', `${subDirectoryName}.html`),
-    'utf8'
-  );
-  const allPostsRendered = renderPageTemplate(
-    allPostsTemplate,
-    {
-      html: partialRenderedTemplates.join(''),
-      data: {
-        title: '',
-        date: '',
-        author: '',
-      },
-    },
-    subDirectoryName,
-    []
-  );
-  return allPostsRendered;
-};
+	const allPostsTemplate = fs.readFileSync(
+		path.join('src', 'template', `${subDirectoryName}.html`),
+		'utf8'
+	)
+	const allPostsRendered = renderPageTemplate(
+		allPostsTemplate,
+		{
+			html: partialRenderedTemplates.join(''),
+			data: {
+				title: '',
+				date: '',
+				author: '',
+			},
+		},
+		subDirectoryName,
+		[]
+	)
+	return allPostsRendered
+}
 
 const saveAllPosts = (subDirectoryName, allPostsRendered) => {
-  const outputFileName = path.join('dist', `${subDirectoryName}.html`);
-  saveFile(outputFileName, allPostsRendered);
-};
+	const outputFileName = path.join('dist', `${subDirectoryName}.html`)
+	saveFile(outputFileName, allPostsRendered)
+}
 
 const processSubDirectories = (subDirectoryNames) => {
-  subDirectoryNames.forEach((subDirectoryName) => {
-    const subDirectoryPath = path.join('src', 'pages', subDirectoryName);
-    const subDirectoryFilenames = glob.sync(path.join(subDirectoryPath, '*.md'));
-    const partialRenderedTemplates = [];
+	subDirectoryNames.forEach((subDirectoryName) => {
+		const subDirectoryPath = path.join('src', 'pages', subDirectoryName)
+		const subDirectoryFilenames = glob.sync(path.join(subDirectoryPath, '*.md'))
+		const partialRenderedTemplates = []
 
-    subDirectoryFilenames.forEach((fileName) => {
-      const partialRendered = processMarkdownFile(fileName, subDirectoryName);
-      partialRenderedTemplates.push(partialRendered);
+		subDirectoryFilenames.forEach((fileName) => {
+			let partialRendered = processMarkdownFile(fileName, subDirectoryName)
+			const singlePostRendered = renderSinglePost(
+				subDirectoryName,
+				partialRendered
+			)
+			saveSinglePost(subDirectoryName, singlePostRendered, fileName)
 
-      const singlePostRendered = renderSinglePost(subDirectoryName, partialRendered);
-      saveSinglePost(subDirectoryName, singlePostRendered, fileName);
-    });
+			const link = `${subDirectoryName}/${getFileNameWithoutExtension(
+				fileName
+			)}.html`
+			partialRendered = hyperlinkH1Tags(partialRendered, link)
+			partialRenderedTemplates.push(partialRendered)
+		})
 
-    const allPostsRendered = renderAllPosts(subDirectoryName, partialRenderedTemplates);
-	  saveAllPosts(subDirectoryName, allPostsRendered);
-  });
+		const allPostsRendered = renderAllPosts(
+			subDirectoryName,
+			partialRenderedTemplates
+		)
+		saveAllPosts(subDirectoryName, allPostsRendered)
+	})
 }
 	
 
