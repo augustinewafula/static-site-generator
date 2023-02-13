@@ -1,5 +1,5 @@
 ---
-template: blank.html
+template: default.html
 title: Welcome to My Static Site
 author: Augustine Wafula
 date: Feb 9, 2023
