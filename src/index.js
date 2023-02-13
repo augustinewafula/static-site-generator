@@ -67,11 +67,6 @@ const processFile = (filename, filenames, template, outPath) => {
 	console.log(`📝 ${outputFileName}`)
 }
 
-const processSubDirectoryFile = (file, template) => {
-
-	return renderPageTemplate(template, file, '', [])
-}
-
 const processSubDirectories = (subDirectoryNames) => {
 	subDirectoryNames.forEach((subDirectoryName) => {
 		const subDirectoryPath = path.join('src', 'pages', subDirectoryName)
@@ -94,9 +89,11 @@ const processSubDirectories = (subDirectoryNames) => {
 		const subDirectoryFilePartialTemplates = []
 		subDirectoryFilenames.forEach((subDirectoryFilename) => {
 			const subDirectoryFile = readFile(subDirectoryFilename)
-			const subDirectoryFilePartialTemplate = processSubDirectoryFile(
+			const subDirectoryFilePartialTemplate = renderPageTemplate(
+				subDirectoryPartialTemplate,
 				subDirectoryFile,
-				subDirectoryPartialTemplate
+				'',
+				[]
 			)
 			subDirectoryFilePartialTemplates.push(subDirectoryFilePartialTemplate)
 			const singlePostTemplate = renderPageTemplate(
