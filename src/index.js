@@ -104,7 +104,7 @@ const saveSinglePost = (subDirectoryName, singlePostRendered, fileName) => {
   console.log(`📝 ${outputFileName}`);
 }
 
-const hyperlinkH1Tags = (content, link) => {
+const generateHyperlinkForH1Tags = (content, link) => {
 	return content.replace(
 		/<h1(.*?)>(.*?)<\/h1>/g,
 		`<h1$1><a href="${link}">$2</a></h1>`
@@ -154,7 +154,7 @@ const processSubDirectories = (subDirectoryNames) => {
 			const link = `${subDirectoryName}/${getFileNameWithoutExtension(
 				fileName
 			)}.html`
-			partialRendered = hyperlinkH1Tags(partialRendered, link)
+			partialRendered = generateHyperlinkForH1Tags(partialRendered, link)
 			partialRenderedTemplates.push(partialRendered)
 		})
 
