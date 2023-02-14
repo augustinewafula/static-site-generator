@@ -171,6 +171,7 @@ const renderAllPosts = async (subDirectoryName, partialRenderedTemplates) => {
 const saveAllPosts = (subDirectoryName, allPostsRendered) => {
 	const outputFileName = path.join('dist', `${subDirectoryName}.html`)
 	saveFile(outputFileName, allPostsRendered)
+	console.log(`📝 ${outputFileName}`)
 }
 
 const processSubDirectories = async (subDirectoryNames) => {
