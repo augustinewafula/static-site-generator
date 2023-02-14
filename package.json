@@ -9,7 +9,7 @@
 	"scripts": {
 		"lint": "eslint .",
 		"dev": "nodemon -e js,md,html --ignore dist/ src/index.js",
-		"start": "node src/index.js"
+		"build": "node src/index.js"
 	},
 	"dependencies": {
 		"glob": "^7.1.6",
