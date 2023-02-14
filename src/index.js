@@ -42,7 +42,7 @@ const generateNavigationLinks = async (template) => {
 	}
 }
 
-const renderPageTemplate = async (template, data, filename, filenames) => {
+const renderPageTemplate = async (template, data, filename) => {
 	const { html } = data
 	const { date, title, author } = data.data
 	try {
@@ -77,8 +77,7 @@ const processFile = async (filename, filenames, template, outPath) => {
 	const renderedPageTemplate = await renderPageTemplate(
 		template,
 		file,
-		pageTitle,
-		filenames
+		pageTitle
 	)
 
 	saveFile(outputFileName, renderedPageTemplate)
@@ -99,8 +98,7 @@ const processMarkdownFile = async (fileName, subDirectoryName) => {
 	const partialRendered = await renderPageTemplate(
 		partialTemplate,
 		file,
-		'',
-		[]
+		''
 	)
 	return partialRendered
 }
@@ -124,8 +122,7 @@ const renderSinglePost = async (subDirectoryName, partialRendered) => {
 				author: '',
 			},
 		},
-		'Details',
-		[]
+		'Details'
 	)
 	return singlePostRendered
 }
@@ -162,8 +159,7 @@ const renderAllPosts = async (subDirectoryName, partialRenderedTemplates) => {
 				author: '',
 			},
 		},
-		subDirectoryName,
-		[]
+		subDirectoryName
 	)
 	return allPostsRendered
 }
