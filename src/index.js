@@ -6,6 +6,7 @@ import mkdirp from 'mkdirp'
 import path from 'path'
 import ncp from 'ncp'
 import inflection from 'inflection'
+import yaml from 'js-yaml'
 
 const readFile = (filename) => {
 	const rawFile = fs.readFileSync(filename, 'utf8')
@@ -19,31 +20,42 @@ const capitalizeFirstLetter = (string) => {
 	return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
-const generateNavigationLinks = (template, pageFilenames) => {
-	let navigation = '<ul class="navbar-nav ms-auto py-4 py-lg-0">'
+const generateNavigationLinks = async (template) => {
+	const filePath = 'src/navigation.yml'
 
-	pageFilenames.forEach(function (filename) {
-		const pageTitle = getFileNameWithoutExtension(filename)
-		navigation += `<li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="${getFileNameWithoutExtension(
-			filename
-		)}.html">${capitalizeFirstLetter(pageTitle)}</a></li>`
-	})
+	try {
+		const data = await fs.promises.readFile(filePath, 'utf8')
+		let navigationString = '<ul class="navbar-nav ms-auto py-4 py-lg-0">'
 
-	navigation += '</ul>'
+		const navigation = yaml.load(data)
 
-	return template.replace(/{{ NAVIGATION }}/g, navigation)
+		navigation.forEach(function (item) {
+			const link =
+				item.link !== '/' ? item.link.replace(/^\//, '') : 'index.html'
+			navigationString += `<li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="${link}">${item.name}</a></li>`
+		})
+
+		navigationString += '</ul>'
+		return template.replace(/{{ NAVIGATION }}/g, navigationString)
+	} catch (err) {
+		throw err
+	}
 }
 
-const renderPageTemplate = (template, data, filename, filenames) => {
+const renderPageTemplate = async (template, data, filename, filenames) => {
 	const { html } = data
 	const { date, title, author } = data.data
-	template = generateNavigationLinks(template, filenames)
-	return template
-		.replace(/{{ PAGE_TITLE }}/g, capitalizeFirstLetter(filename))
-		.replace(/{{ AUTHOR }}/g, author)
-		.replace(/{{ PUBLISH_DATE }}/g, date)
-		.replace(/{{ TITLE }}/g, title)
-		.replace(/{{ CONTENT }}/g, html)
+	try {
+		const modifiedTemplate = await generateNavigationLinks(template)
+		return modifiedTemplate
+			.replace(/{{ PAGE_TITLE }}/g, capitalizeFirstLetter(filename))
+			.replace(/{{ AUTHOR }}/g, author)
+			.replace(/{{ PUBLISH_DATE }}/g, date)
+			.replace(/{{ TITLE }}/g, title)
+			.replace(/{{ CONTENT }}/g, html)
+	} catch (error) {
+		console.log('🚀 ~ file: index.js:60 ~ renderPageTemplate ~ error', error)
+	}
 }
 
 const saveFile = (filename, contents) => {
@@ -55,68 +67,92 @@ const saveFile = (filename, contents) => {
 const getOutputFilename = (filename, outPath) =>
 	path.join(outPath, path.basename(filename).replace(/\.md$/, '.html'))
 
-const getFileNameWithoutExtension = (filename) => path.basename(filename).replace(/\.md$/, '')
- 
-const processFile = (filename, filenames, template, outPath) => {
+const getFileNameWithoutExtension = (filename) =>
+	path.basename(filename).replace(/\.md$/, '')
+
+const processFile = async (filename, filenames, template, outPath) => {
 	const file = readFile(filename)
 	const outputFileName = getOutputFilename(filename, outPath)
 	const pageTitle = getFileNameWithoutExtension(filename)
-	const renderedPageTemplate = renderPageTemplate(template, file, pageTitle, filenames)
+	const renderedPageTemplate = await renderPageTemplate(
+		template,
+		file,
+		pageTitle,
+		filenames
+	)
 
 	saveFile(outputFileName, renderedPageTemplate)
 	console.log(`📝 ${outputFileName}`)
 }
 
-const processMarkdownFile = (fileName, subDirectoryName) => {
-  const file = readFile(fileName);
-  const partialTemplate = fs.readFileSync(
-    path.join('src', 'template', 'partial', `${inflection.singularize(subDirectoryName)}.html`),
-    'utf8'
-  );
-  const partialRendered = renderPageTemplate(partialTemplate, file, '', []);
-  return partialRendered;
+const processMarkdownFile = async (fileName, subDirectoryName) => {
+	const file = readFile(fileName)
+	const partialTemplate = fs.readFileSync(
+		path.join(
+			'src',
+			'template',
+			'partial',
+			`${inflection.singularize(subDirectoryName)}.html`
+		),
+		'utf8'
+	)
+	const partialRendered = await renderPageTemplate(
+		partialTemplate,
+		file,
+		'',
+		[]
+	)
+	return partialRendered
 }
 
-const renderSinglePost = (subDirectoryName, partialRendered) => {
-  const singlePostTemplate = fs.readFileSync(
-    path.join('src', 'template', `${inflection.singularize(subDirectoryName)}.html`),
-    'utf8'
-  );
-  const singlePostRendered = renderPageTemplate(
-    singlePostTemplate,
-    {
-      html: partialRendered,
-      data: {
-        title: '',
-        date: '',
-        author: '',
-      },
-    },
-    'Details',
-    []
-  );
-  return singlePostRendered;
+const renderSinglePost = async (subDirectoryName, partialRendered) => {
+	const singlePostTemplate = fs.readFileSync(
+		path.join(
+			'src',
+			'template',
+			`${inflection.singularize(subDirectoryName)}.html`
+		),
+		'utf8'
+	)
+	const singlePostRendered = await renderPageTemplate(
+		singlePostTemplate,
+		{
+			html: partialRendered,
+			data: {
+				title: '',
+				date: '',
+				author: '',
+			},
+		},
+		'Details',
+		[]
+	)
+	return singlePostRendered
 }
 
 const saveSinglePost = (subDirectoryName, singlePostRendered, fileName) => {
-  const outputFileName = getOutputFilename(fileName, path.join('dist', subDirectoryName));
-  saveFile(outputFileName, singlePostRendered);
-  console.log(`📝 ${outputFileName}`);
+	const outputFileName = getOutputFilename(
+		fileName,
+		path.join('dist', subDirectoryName)
+	)
+	saveFile(outputFileName, singlePostRendered)
+	console.log(`📝 ${outputFileName}`)
 }
 
 const generateHyperlinkForH1Tags = (content, link) => {
+	content = content.toString()
 	return content.replace(
 		/<h1(.*?)>(.*?)<\/h1>/g,
 		`<h1$1><a href="${link}">$2</a></h1>`
 	)
 }
 
-const renderAllPosts = (subDirectoryName, partialRenderedTemplates) => {
+const renderAllPosts = async (subDirectoryName, partialRenderedTemplates) => {
 	const allPostsTemplate = fs.readFileSync(
 		path.join('src', 'template', `${subDirectoryName}.html`),
 		'utf8'
 	)
-	const allPostsRendered = renderPageTemplate(
+	const allPostsRendered = await renderPageTemplate(
 		allPostsTemplate,
 		{
 			html: partialRenderedTemplates.join(''),
@@ -137,15 +173,15 @@ const saveAllPosts = (subDirectoryName, allPostsRendered) => {
 	saveFile(outputFileName, allPostsRendered)
 }
 
-const processSubDirectories = (subDirectoryNames) => {
-	subDirectoryNames.forEach((subDirectoryName) => {
+const processSubDirectories = async (subDirectoryNames) => {
+	for (const subDirectoryName of subDirectoryNames) {
 		const subDirectoryPath = path.join('src', 'pages', subDirectoryName)
 		const subDirectoryFilenames = glob.sync(path.join(subDirectoryPath, '*.md'))
 		const partialRenderedTemplates = []
 
-		subDirectoryFilenames.forEach((fileName) => {
-			let partialRendered = processMarkdownFile(fileName, subDirectoryName)
-			const singlePostRendered = renderSinglePost(
+		for (const fileName of subDirectoryFilenames) {
+			let partialRendered = await processMarkdownFile(fileName, subDirectoryName)
+			const singlePostRendered = await renderSinglePost(
 				subDirectoryName,
 				partialRendered
 			)
@@ -156,15 +192,16 @@ const processSubDirectories = (subDirectoryNames) => {
 			)}.html`
 			partialRendered = generateHyperlinkForH1Tags(partialRendered, link)
 			partialRenderedTemplates.push(partialRendered)
-		})
+		}
 
-		const allPostsRendered = renderAllPosts(
+		const allPostsRendered = await renderAllPosts(
 			subDirectoryName,
 			partialRenderedTemplates
 		)
 		saveAllPosts(subDirectoryName, allPostsRendered)
-	})
+	}
 }
+
 	
 
 const copyTemplateAssets = (srcPath, outPath) => {
