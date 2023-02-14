@@ -223,6 +223,10 @@ const processSubDirectories = async (subDirectoryNames) => {
 const copyTemplateAssets = (srcPath, outPath) => {
 	const assetsPath = path.join(srcPath, 'template/assets')
 
+	if (!fs.existsSync(assetsPath)) {
+		fs.mkdirSync(assetsPath, { recursive: true })
+	}
+
 	ncp(assetsPath, path.join(outPath, 'assets'), (err) => {
 		if (err) {
 			return console.error(err)
