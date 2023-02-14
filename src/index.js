@@ -20,7 +20,7 @@ const capitalizeFirstLetter = (string) => {
 	return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
-const generateNavigationLinks = async (template) => {
+const generateNavigationLinks = async (template, navigationLinksLevel) => {
 	const filePath = 'src/navigation.yml'
 
 	try {
@@ -32,7 +32,8 @@ const generateNavigationLinks = async (template) => {
 		navigation.forEach(function (item) {
 			const link =
 				item.link !== '/' ? item.link.replace(/^\//, '') : 'index.html'
-			navigationString += `<li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="${link}">${item.name}</a></li>`
+			const relativePrefix = '../'.repeat(navigationLinksLevel)
+			navigationString += `<li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="${relativePrefix}${link}">${item.name}</a></li>`
 		})
 
 		navigationString += '</ul>'
@@ -42,11 +43,15 @@ const generateNavigationLinks = async (template) => {
 	}
 }
 
-const renderPageTemplate = async (template, data, filename) => {
+
+const renderPageTemplate = async (template, data, filename, navigationLinksLevel = 0) => {
 	const { html } = data
 	const { date, title, author } = data.data
 	try {
-		const modifiedTemplate = await generateNavigationLinks(template)
+		const modifiedTemplate = await generateNavigationLinks(
+			template,
+			navigationLinksLevel
+		)
 		return modifiedTemplate
 			.replace(/{{ PAGE_TITLE }}/g, capitalizeFirstLetter(filename))
 			.replace(/{{ AUTHOR }}/g, author)
@@ -122,7 +127,8 @@ const renderSinglePost = async (subDirectoryName, partialRendered) => {
 				author: '',
 			},
 		},
-		'Details'
+		'Details',
+		1
 	)
 	return singlePostRendered
 }
