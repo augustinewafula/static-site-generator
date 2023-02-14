@@ -7,6 +7,7 @@ import path from 'path'
 import ncp from 'ncp'
 import inflection from 'inflection'
 import yaml from 'js-yaml'
+import jsdom from 'jsdom'
 
 const readFile = (filename) => {
 	const rawFile = fs.readFileSync(filename, 'utf8')
@@ -176,6 +177,17 @@ const saveAllPosts = (subDirectoryName, allPostsRendered) => {
 	console.log(`📝 ${outputFileName}`)
 }
 
+function truncatePreview(partialRendered) {
+	const { JSDOM } = jsdom
+	const dom = new JSDOM(partialRendered)
+	const div = dom.window.document.querySelector('div')
+
+	const remainingParagraphs = div.querySelectorAll('p:not(:first-of-type)')
+	remainingParagraphs.forEach((p) => p.remove())
+
+	return div.innerHTML
+}
+
 const processSubDirectories = async (subDirectoryNames) => {
 	for (const subDirectoryName of subDirectoryNames) {
 		const subDirectoryPath = path.join('src', 'pages', subDirectoryName)
@@ -194,6 +206,7 @@ const processSubDirectories = async (subDirectoryNames) => {
 				fileName
 			)}.html`
 			partialRendered = generateHyperlinkForH1Tags(partialRendered, link)
+			partialRendered = truncatePreview(partialRendered)
 			partialRenderedTemplates.push(partialRendered)
 		}
 
