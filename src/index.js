@@ -52,7 +52,7 @@ const renderPageTemplate = async (
 	navigationLinksLevel = 0
 ) => {
 	const { html } = data
-	const { date, title, author } = data.data || {}
+	const { date, title, author, message, supplementary_message } = data.data || {}
 	try {
 		const modifiedTemplate = await generateNavigationLinks(
 			template,
@@ -65,6 +65,8 @@ const renderPageTemplate = async (
 			.replace(/{{ PUBLISH_DATE }}/g, date || '')
 			.replace(/{{ TITLE }}/g, pageTitle || '')
 			.replace(/{{ CONTENT }}/g, html)
+			.replace(/{{ MESSAGE }}/g, message || '')
+			.replace(/{{ SUPPLEMENTARY_MESSAGE }}/g, supplementary_message || '')
 	} catch (error) {
 		console.log('🚀 ~ file: index.js:60 ~ renderPageTemplate ~ error', error)
 		return undefined
@@ -226,7 +228,40 @@ const processSubDirectories = async (subDirectoryNames) => {
 	}
 }
 
-	
+const generateErrorPages = async () => {
+	const errorPages = [
+		{
+			name: '404',
+			title: 'Page not found',
+			message: 'The page you are looking for does not exist.',
+			supplementary_message: 'Please check the URL and try again.',
+		},
+		{
+			name: '500',
+			title: 'Internal server error',
+			message: 'Sorry, something went wrong on our end.',
+			supplementary_message: 'Please try again later.',
+		},
+
+	]
+	for (const errorPage of errorPages) {
+		const errorPageTemplate = fs.readFileSync(
+			path.join('src', 'template', `error.html`),
+			'utf8'
+		)
+		const errorPageRendered = await renderPageTemplate(
+			errorPageTemplate,
+			{
+				html: '',
+				data: errorPage,
+			},
+			errorPage.name
+		)
+		const outputFileName = path.join('dist', `${errorPage.name}.html`)
+		saveFile(outputFileName, errorPageRendered)
+		console.log(`📝 ${outputFileName}`)
+	}
+}
 
 const copyTemplateAssets = (srcPath, outPath) => {
 	const assetsPath = path.join(srcPath, 'template/assets')
@@ -267,7 +302,7 @@ const main = () => {
 		.map((directoryPath) => path.basename(directoryPath.slice(0, -1)))
 	
 	processSubDirectories(subDirectoryNames)
-
+	generateErrorPages()
 	copyTemplateAssets(srcPath, outPath)
 }
 
