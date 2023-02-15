@@ -30,11 +30,13 @@ Before using this static site generator, you need to have the following software
 * The `dist` directory contains the generated HTML files.
 
 # Adding Content
-To add content to the site, create a new Markdown file in the src directory. The Markdown file should contain a YAML front matter section at the top of the file. The front matter should contain the following fields:
+To add content to the site, create a new Markdown file in the `src/pages` directory. The Markdown file should contain a YAML front matter section at the top of the file. The front matter should contain the following fields:
 
 * template: The name of the template to use for the page. The default template is `default.html`.
 
 * title: The title of the page.
+
+It can also contain the following optional fields:
 
 * date: The date the page was published.
 
@@ -74,9 +76,9 @@ Example:
     - name: Home
       link: /
     - name: About
-      link: /about
+      link: /about.html
     - name: Contact
-      link: /contact
+      link: /contact.html
 
 # Conclusion
 This static site generator is a simple and flexible solution for generating HTML files from Markdown files. It is highly customizable and can be used to create a wide range of static websites.
