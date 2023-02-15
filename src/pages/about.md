@@ -1,8 +1,6 @@
 ---
 template: default.html
 title: About
-author: Augustine Wafula
-date: Feb 9, 2023
 ---
 
 This is about page
