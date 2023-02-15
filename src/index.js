@@ -1,7 +1,7 @@
 import fs from 'fs'
 import glob from 'glob'
 import matter from 'gray-matter'
-import marked from 'marked'
+import { marked } from 'marked'
 import mkdirp from 'mkdirp'
 import path from 'path'
 import ncp from 'ncp'
