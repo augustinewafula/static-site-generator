@@ -47,10 +47,10 @@ Example:
         ---
 
 ## Generating Single Pages
-To generate a single page, create a markdown file in the src/content directory and run the generator with the command `npm run build`
+To generate a single page, create a markdown file in the `src/pages` directory and run the generator with the command `npm run build`
 
 ## Generating Blog Pages.
-To generate blog pages, create a directory in the src/content directory and place your markdown files in that directory. The directory name will be used as the blog category. Run the generator with the command `npm run build`.
+To generate blog pages, create a directory in the `src/pages` directory and place your markdown files in that directory. The directory name will be used as the blog category. Run the generator with the command `npm run build`.
 
 ## Customizing Templates
 You can customize the HTML templates by modifying the files in the `src/template` directory. The generator uses the `default.html` file as the default template. You can create custom templates by creating a new HTML file in the `src/template` directory and referencing it in your markdown files.
