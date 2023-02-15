@@ -63,7 +63,7 @@ const renderPageTemplate = async (
 			.replace(/{{ PAGE_TITLE }}/g, pageTitle)
 			.replace(/{{ AUTHOR }}/g, author || '')
 			.replace(/{{ PUBLISH_DATE }}/g, date || '')
-			.replace(/{{ TITLE }}/g, title || '')
+			.replace(/{{ TITLE }}/g, pageTitle || '')
 			.replace(/{{ CONTENT }}/g, html)
 	} catch (error) {
 		console.log('🚀 ~ file: index.js:60 ~ renderPageTemplate ~ error', error)
