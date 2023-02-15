@@ -45,9 +45,14 @@ const generateNavigationLinks = async (template, navigationLinksLevel) => {
 }
 
 
-const renderPageTemplate = async (template, data, filename, navigationLinksLevel = 0) => {
+const renderPageTemplate = async (
+	template,
+	data,
+	filename,
+	navigationLinksLevel = 0
+) => {
 	const { html } = data
-	const { date, title, author } = data.data
+	const { date, title, author } = data.data || {}
 	try {
 		const modifiedTemplate = await generateNavigationLinks(
 			template,
@@ -55,14 +60,16 @@ const renderPageTemplate = async (template, data, filename, navigationLinksLevel
 		)
 		return modifiedTemplate
 			.replace(/{{ PAGE_TITLE }}/g, capitalizeFirstLetter(filename))
-			.replace(/{{ AUTHOR }}/g, author)
-			.replace(/{{ PUBLISH_DATE }}/g, date)
-			.replace(/{{ TITLE }}/g, title)
+			.replace(/{{ AUTHOR }}/g, author || '')
+			.replace(/{{ PUBLISH_DATE }}/g, date || '')
+			.replace(/{{ TITLE }}/g, title || '')
 			.replace(/{{ CONTENT }}/g, html)
 	} catch (error) {
 		console.log('🚀 ~ file: index.js:60 ~ renderPageTemplate ~ error', error)
+		return undefined
 	}
 }
+
 
 const saveFile = (filename, contents) => {
 	const dir = path.dirname(filename)
