@@ -20,7 +20,7 @@ Before using this static site generator, you need to have the following software
     
         npm run build
 
-4. The HTML files will be generated in the dist folder.
+4. The HTML files will be generated in the `dist` folder.
 
 # Project Structure
 * The `src` directory contains the Markdown files, templates and navigation file.
