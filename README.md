@@ -32,6 +32,8 @@ Before using this static site generator, you need to have the following software
 # Adding Content
 To add content to the site, create a new Markdown file in the src directory. The Markdown file should contain a YAML front matter section at the top of the file. The front matter should contain the following fields:
 
+* template: The name of the template to use for the page. The default template is `default.html`.
+
 * title: The title of the page.
 
 * date: The date the page was published.
@@ -41,6 +43,7 @@ To add content to the site, create a new Markdown file in the src directory. The
 Example:
 
         ---
+        template: default.html
         title: My First Blog Post
         date: 02/15/2023
         author: John Doe
