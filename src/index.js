@@ -58,8 +58,9 @@ const renderPageTemplate = async (
 			template,
 			navigationLinksLevel
 		)
+		const pageTitle = title || capitalizeFirstLetter(filename)
 		return modifiedTemplate
-			.replace(/{{ PAGE_TITLE }}/g, capitalizeFirstLetter(filename))
+			.replace(/{{ PAGE_TITLE }}/g, pageTitle)
 			.replace(/{{ AUTHOR }}/g, author || '')
 			.replace(/{{ PUBLISH_DATE }}/g, date || '')
 			.replace(/{{ TITLE }}/g, title || '')
