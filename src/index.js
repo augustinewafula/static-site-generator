@@ -177,7 +177,7 @@ const saveAllPosts = (subDirectoryName, allPostsRendered) => {
 	console.log(`📝 ${outputFileName}`)
 }
 
-function truncatePreview(partialRendered) {
+const truncatePreview = (partialRendered) => {
 	const { JSDOM } = jsdom
 	const dom = new JSDOM(partialRendered)
 	const div = dom.window.document.querySelector('div')
