@@ -1,6 +1,6 @@
 ---
 template: default.html
-title: Welcome to My Static Site
+title: About
 author: Augustine Wafula
 date: Feb 9, 2023
 ---
