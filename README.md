@@ -80,3 +80,11 @@ Example:
 
 # Conclusion
 This static site generator is a simple and flexible solution for generating HTML files from Markdown files. It is highly customizable and can be used to create a wide range of static websites.
+
+# Credits
+
+The blog template at https://startbootstrap.com/previews/clean-blog was used for the demo of the static site generator
+
+
+# License
+This project is licensed under the MIT License - see the LICENSE.md file for details.
