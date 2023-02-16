@@ -10,9 +10,7 @@
 	"scripts": {
 		"lint": "eslint .",
 		"dev": "nodemon -e js,md,html --ignore dist/ src/index.js",
-		"build": "node src/index.js",
-		"predeploy": "npm run build",
-		"deploy": "gh-pages -d build"
+		"build": "node src/index.js"
 	},
 	"dependencies": {
 		"glob": "^7.1.6",
