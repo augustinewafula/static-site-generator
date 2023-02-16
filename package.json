@@ -1,9 +1,9 @@
 {
-	"name": "static-md",
+	"name": "static-site-generator",
 	"version": "1.0.0",
 	"description": "",
 	"keywords": [],
-	"author": "JavaScript Joel",
+	"author": "Augustine Wafula",
 	"license": "MIT",
 	"type": "module",
 	"homepage": "https://augustinewafula.github.io/static-site-generator",
