@@ -265,20 +265,18 @@ const generateErrorPages = async () => {
 
 const copyTemplateAssets = (srcPath, outPath) => {
 	const assetsPath = path.join(srcPath, 'template/assets')
+	const assetsOutPath = path.join(outPath, 'assets')
 
-	if (!fs.existsSync(assetsPath)) {
-		fs.mkdirSync(assetsPath, { recursive: true })
+	if (!fs.existsSync(assetsOutPath)) {
+		fs.mkdirSync(assetsOutPath, { recursive: true })
 	}
 
-	ncp(assetsPath, path.join(outPath, 'assets'), (err) => {
+	ncp(assetsPath, assetsOutPath, (err) => {
 		if (err) {
 			return console.error(err)
 		}
 		console.log(
-			`📂 All assets from ${assetsPath} have been copied to ${path.join(
-				outPath,
-				'assets'
-			)}.`
+			`📂 All assets from ${assetsPath} have been copied to ${assetsOutPath}.`
 		)
 	})
 }
